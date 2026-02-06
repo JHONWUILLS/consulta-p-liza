@@ -3,103 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta RCV</title>
+    <title>Consulta de Póliza</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #f0f2f5; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: auto; border-top: 10px solid #d32f2f; }
-        h2 { color: #333; margin-bottom: 20px; }
-        .dato { text-align: left; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .etiqueta { font-size: 0.8em; color: #777; font-weight: bold; text-transform: uppercase; }
-        .valor { display: block; font-size: 1.1em; color: #222; font-weight: 600; }
-        .estado { display: inline-block; margin-top: 15px; padding: 5px 15px; border-radius: 20px; background: #e8f5e9; color: #2e7d32; font-weight: bold; }
-        .btn { display: block; padding: 15px; background: #d32f2f; color: white; text-decoration: none; border-radius: 10px; margin-top: 25px; font-weight: bold; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: inline-block; width: 90%; max-width: 400px; }
+        .btn { display: none; margin-top: 15px; padding: 10px 20px; background: #27ae60; color: white; text-decoration: none; border-radius: 5px; }
+        #error-msg { color: red; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Certificado RCV</h2>
-    
-    <div class="dato">
-        <span class="etiqueta">Titular:</span>
-        <span id="Titular" class="valor">Cargando...</span>
-    </div>
-    
-    <div class="dato">
-        <span class="etiqueta">Marca:</span>
-        <span id="Marca" class="valor">Cargando...</span>
-    </div>
-
-    <div class="dato">
-        <span class="etiqueta">Placa:</span>
-        <span id="Placa" class="valor">Cargando...</span>
-    </div>
-
-    <div class="dato">
-        <span class="etiqueta">Fecha-vencimiento:</span>
-        <span id="Fecha-vencimiento" class="valor">Cargando...</span>
-    </div>
-
-    <div id="status" class="Estado">● Póliza Activa</div>
-
-    <a id="link-pdf" href="#" class="btn" target="_blank">DESCARGAR PDF</a>
+    <h2>Información de Póliza</h2>
+    <p><strong>Código:</strong> <span id="txtCodigo">Cargando...</span></p>
+    <p><strong>Titular:</strong> <span id="txtTitular">Cargando...</span></p>
+    <p><strong>Marca:</strong> <span id="txtMarca">Cargando...</span></p>
+    <p><strong>Placa:</strong> <span id="txtPlaca">Cargando...</span></p>
+    <hr>
+    <a id="btnPdf" href="#" class="btn" target="_blank">VER PDF CERTIFICADO</a>
+    <div id="error-msg"></div>
 </div>
-<p><strong>Certificado:</strong> <a id="link-pdf" href="#" target="_blank">Descargar PDF</a></p>
 
-<p><strong>Token QR:</strong> <span id="token_qr">Cargando...</span></p>
-
-<p><strong>Código Póliza:</strong> <span id="Codigo">Cargando...</span></p>
 <script>
-  <script>
-    const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co';
+    // 1. REEMPLAZA ESTAS LLAVES CON LAS TUYAS
+    const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
     const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
+
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-    async function cargarPoliza() {
-        console.log("Iniciando carga...");
+    async function cargarDatos() {
         try {
-            // Intentamos traer la información
             const { data, error } = await supabaseClient
-                .from('Polizas') // Revisa que la P sea mayúscula
+                .from('Polizas')
                 .select('*')
                 .limit(1)
                 .single();
 
             if (error) {
-                console.error("Error de Supabase:", error);
-                document.body.innerHTML += `<div style="color:red; background:white; padding:20px;"> 
-                    <b>ERROR DE CONEXIÓN:</b> ${error.message} <br>
-                    <b>DETALLE:</b> ${error.hint || 'Revisa el nombre de la tabla'} 
-                </div>`;
+                document.getElementById('error-msg').innerText = "Error: " + error.message;
                 return;
             }
 
             if (data) {
-                console.log("Datos recibidos:", data);
-                // Llenamos los campos (Asegúrate que coincidan con tus columnas)
-                document.getElementById('titular').innerText = data.titular || 'No hay dato';
-                document.getElementById('marca').innerText = data.Marca || 'No hay dato'; 
-                document.getElementById('placa').innerText = data.placa || 'No hay dato';
-                document.getElementById('vencimiento').innerText = data['fecha-vencimiento'] || 'No hay dato';
-                
+                // AQUÍ USAMOS LAS MAYÚSCULAS QUE ME DIJISTE
+                document.getElementById('txtCodigo').innerText = data.Codigo || 'N/A';
+                document.getElementById('txtTitular').innerText = data.Titular || 'N/A';
+                document.getElementById('txtMarca').innerText = data.Marca || 'N/A';
+                document.getElementById('txtPlaca').innerText = data.Placa || 'N/A';
+
                 if (data.Url_pdf) {
-                    const btn = document.getElementById('link-pdf');
+                    const btn = document.getElementById('btnPdf');
                     btn.href = data.Url_pdf;
                     btn.style.display = 'inline-block';
-                    btn.innerText = "Ver Certificado";
                 }
-            } else {
-                alert("No se encontró ninguna fila en la tabla Polizas.");
             }
-
         } catch (err) {
-            alert("Error crítico del código: " + err.message);
+            document.getElementById('error-msg').innerText = "Error de sistema: " + err.message;
         }
     }
 
-    cargarPoliza();
-</script>  
+    cargarDatos();
 </script>
+
 </body>
 </html>
+    
+    
+           
+      
