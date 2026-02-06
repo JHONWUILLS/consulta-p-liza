@@ -6,111 +6,57 @@
     <title>Consulta de Póliza</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        h2 { color: #1a73e8; margin-bottom: 20px; }
-        .info-group { text-align: left; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .label { font-weight: bold; color: #666; font-size: 14px; display: block; }
-        .value { font-size: 18px; color: #222; }
-        .btn { display: none; background-color: #28a745; color: white; text-decoration: none; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 25px; transition: background 0.3s; }
-        .btn:hover { background-color: #218838; }
-        #msg { color: red; margin-top: 15px; font-size: 14px; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; width: 90%; max-width: 400px; }
+        .btn { display: none; background-color: #28a745; color: white; padding: 15px; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+        .dato { font-weight: bold; color: #333; margin: 10px 0; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Póliza Digital</h2>
-    
-    <div class="info-group">
-        <span class="label">Titular:</span>
-        <span id="txtTitular" class="value">Cargando...</span>
+    <div class="card">
+        <h2>Mi Póliza</h2>
+        <div class="dato">Titular: <span id="txtTitular">Cargando...</span></div>
+        <div class="dato">Placa: <span id="txtPlaca">...</span></div>
+        <div class="dato">Marca: <span id="txtMarca">...</span></div>
+        <div class="dato">Vence: <span id="txtVence">...</span></div>
+        
+        <a id="btnPdf" href="#" class="btn">VER PÓLIZA DIGITAL</a>
+        <p id="msg" style="color:red;"></p>
     </div>
 
-    <div class="info-group">
-        <span class="label">Placa:</span>
-        <span id="txtPlaca" class="value">...</span>
-    </div>
+    <script>
+        // 1. TUS DATOS DE CONEXIÓN
+        const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
+        const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-    <div class="info-group">
-        <span class="label">Marca:</span>
-        <span id="txtMarca" class="value">...</span>
-    </div>
+        async function cargarPoliza() {
+            try {
+                const { data, error } = await supabaseClient.from('Polizas').select('*').limit(1).single();
 
-    <div class="info-group">
-        <span class="label">Fecha de Vencimiento:</span>
-        <span id="txtVence" class="value">...</span>
-    </div>
+                if (data) {
+                    // Llenar los datos en pantalla
+                    document.getElementById('txtTitular').innerText = data.Titular || 'No registrado';
+                    document.getElementById('txtPlaca').innerText = data.Placa || 'No registrado';
+                    document.getElementById('txtMarca').innerText = data.Marca || 'No registrado';
+                    document.getElementById('txtVence').innerText = data['Fecha-vencimiento'] || data.Fecha_vencimiento || 'No registrada';
 
-    <a id="btnPdf" href="#" target="_blank" class="btn">DESCARGAR PÓLIZA (PDF)</a>
-    
-    <div id="msg"></div>
-</div>
+                    // 2. EL LINK DE LA FOTO (DRIVE)
+                    // Buscamos en la tabla, y si no hay nada, usamos el link que pegues aquí:
+                    const linkDesdeTabla = data.Url_pdf || data.url_pdf || data.URL_PDF;
+                    const linkEmergencia = "https://drive.google.com/file/d/12BDIeDOQFZxJfyKiiXM3iNfZkUXY6JGO/view?usp=sharing"; 
 
-<script>
-    // 1. COLOCA TUS DATOS AQUÍ
-    const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
-    const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
-    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-
-    async function cargarPoliza() {
-        try {
-            const { data, error } = await supabaseClient.from('Polizas').select('*').limit(1).single();
-
-            if (data) {
-                // Rellenar datos
-                document.getElementById('txtTitular').innerText = data.Titular || 'No registrado';
-                document.getElementById('txtPlaca').innerText = data.Placa || 'No registrado';
-                document.getElementById('txtMarca').innerText = data.Marca || 'No registrado';
-                document.getElementById('txtVence').innerText = data['Fecha-vencimiento'] || data.Fecha_vencimiento || 'No registrada';
-
-                // FORZAR BOTÓN VERDE
-                const boton = document.getElementById('btnPdf');
-                const linkFinal = data.Url_pdf || data.url_pdf || "https://drive.google.com/file/d/12BDIeDOQFZxJfyKiiXM3iNfZkUXY6JGO/view?usp=sharing"; 
-                
-                boton.href = linkFinal;
-                boton.style.display = 'block'; // Lo obliga a aparecer
-                boton.style.backgroundColor = '#28a745'; // Lo obliga a ser verde
-                document.getElementById('msg').innerText = ""; // Borra mensajes de error
-            }
-        } catch (e) {
-            console.log("Error cargando datos");
-        }
-    }
-
-    async function cargarPoliza() {
-        try {
-            const { data, error } = await supabaseClient.from('Polizas').select('*').limit(1).single();
-
-            if (data) {
-                document.getElementById('txtTitular').innerText = data.Titular || 'No registrado';
-                document.getElementById('txtPlaca').innerText = data.Placa || 'No registrado';
-                document.getElementById('txtMarca').innerText = data.Marca || 'No registrado';
-                document.getElementById('txtVence').innerText = data['Fecha-vencimiento'] || data.Fecha_vencimiento || 'No registrada';
-
-                // BUSCADOR AUTOMÁTICO DE LINKS (Busca en todas las columnas posibles)
-                const linkDesdeSupabase = data.Url_pdf || data.url_pdf || data.URL_PDF || data.Url || data.url || data.link;
-                
-                const boton = document.getElementById('btnPdf');
-                
-                if (linkDesdeSupabase && linkDesdeSupabase.includes('http')) {
-                    // Si encontró un link real en Supabase, lo usa
-                    boton.href = linkDesdeSupabase;
-                    boton.style.backgroundColor = '#28a745'; 
-                } else {
-                    // SI SIGUE FALLANDO, PON TU LINK DE DRIVE AQUÍ ABAJO:
-                    boton.href = "AQUÍ_PEGA_TU_LINK_DE_DRIVE_ENTRE_COMILLAS";
-                    boton.style.backgroundColor = '#28a745';
+                    const boton = document.getElementById('btnPdf');
+                    boton.href = (linkDesdeTabla && linkDesdeTabla.includes('http')) ? linkDesdeTabla : linkEmergencia;
+                    boton.style.display = 'block';
                 }
-                
-                boton.style.display = 'block';
-                document.getElementById('msg').innerText = "";
+            } catch (e) {
+                document.getElementById('msg').innerText = "Error al conectar.";
             }
-        } catch (e) {
-            console.log("Error:", e);
         }
-    }
-</script>
 
+        cargarPoliza();
+    </script>
 </body>
 </html>
