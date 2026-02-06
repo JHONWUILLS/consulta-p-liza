@@ -19,7 +19,8 @@
 
     <div class="card">
         <h2>Detalle de Póliza</h2>
-        <div class="info">
+        <div class="info"
+            ><p><span class="label">Código:</span> <span id="txtCodigo">---</span></p>
             <p><span class="label">Titular:</span> <span id="txtTitular">Cargando...</span></p>
             <p><span class="label">Placa:</span> <span id="txtPlaca">---</span></p>
             <p><span class="label">Marca:</span> <span id="txtMarca">---</span></p>
@@ -46,6 +47,7 @@
                     .single();
 
                 if (data) {
+                    document.getElementById('txtCodigo').innerText = data.Codigo || data.codigo || data.ID || '---';
                     document.getElementById('txtTitular').innerText = data.Titular || 'No registrado';
                     document.getElementById('txtPlaca').innerText = data.Placa || '---';
                     document.getElementById('txtMarca').innerText = data.Marca || '---';
