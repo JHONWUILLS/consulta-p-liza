@@ -6,14 +6,13 @@
     <title>Consulta de Póliza</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Centramos todo el contenido y agrandamos la letra */
         body { 
             font-family: Arial, sans-serif; 
             background-color: #f0f2f5; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
         }
         .card { 
@@ -23,19 +22,18 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
             width: 90%; 
             max-width: 450px; 
-            text-align: center; /* Centra el texto dentro de la tarjeta */
+            text-align: center; 
         }
-        h2 { color: #1a73e8; font-size: 28px; }
+        h2 { color: #1a73e8; font-size: 28px; margin-bottom: 20px; }
         p { 
-            font-size: 20px; /* Letra más grande */
+            font-size: 20px; 
             margin: 15px 0; 
             color: #333; 
             border-bottom: 1px solid #eee; 
             padding-bottom: 10px; 
         }
-        strong { color: #555; }
+        strong { color: #555; display: block; margin-bottom: 5px; }
         
-        /* Botón PDF Grande y Centrado */
         .btn { 
             display: none; 
             margin: 20px auto 0 auto; 
@@ -45,21 +43,20 @@
             text-decoration: none; 
             border-radius: 10px; 
             font-weight: bold; 
-            font-size: 22px; 
-            width: fit-content;
+            font-size: 22px;
         }
-        #error-msg { color: red; margin-top: 15px; font-weight: bold; }
+        #error-msg { color: red; margin-top: 15px; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>Mi Póliza Digital</h2>
-    <p><strong>Código:</strong> <br> <span id="txtCodigo">...</span></p>
-    <p><strong>Titular:</strong> <br> <span id="txtTitular">...</span></p>
-    <p><strong>Marca:</strong> <br> <span id="txtMarca">...</span></p>
-    <p><strong>Placa:</strong> <br> <span id="txtPlaca">...</span></p>
-    <p><strong>Vencimiento:</strong> <br> <span id="txtVencimiento">...</span></p>
+    <p><strong>Código</strong> <span id="txtCodigo">Cargando...</span></p>
+    <p><strong>Titular</strong> <span id="txtTitular">Cargando...</span></p>
+    <p><strong>Marca</strong> <span id="txtMarca">Cargando...</span></p>
+    <p><strong>Placa</strong> <span id="txtPlaca">Cargando...</span></p>
+    <p><strong>Vencimiento</strong> <span id="txtVencimiento">Cargando...</span></p>
     
     <a id="btnPdf" href="#" class="btn" target="_blank">VER PDF AQUÍ</a>
     <div id="error-msg"></div>
@@ -81,35 +78,27 @@
                 .single();
 
             if (error) {
-                document.getElementById('error-msg').innerText = "Error: " + error.message;
+                document.getElementById('error-msg').innerText = "Error de conexión: " + error.message;
                 return;
             }
 
             if (data) {
-                // Llenamos los campos con las Mayúsculas que me indicaste
+                // Llenado de campos de texto
                 document.getElementById('txtCodigo').innerText = data.Codigo || 'N/A';
                 document.getElementById('txtTitular').innerText = data.Titular || 'N/A';
                 document.getElementById('txtMarca').innerText = data.Marca || 'N/A';
                 document.getElementById('txtPlaca').innerText = data.Placa || 'N/A';
                 document.getElementById('txtVencimiento').innerText = data['Fecha-vencimiento'] || 'N/A';
 
-                // Aquí activamos el botón del PDF
-                // Buscamos el link probando varios nombres por si acaso
-                const linkFinal = data.Url_pdf || data.Url_PDF || data.URL_PDF || data.url_pdf;
-
-                if (linkFinal) {
-                    const btn = document.getElementById('btnPdf');
-                    btn.href = linkFinal;
-                    btn.style.display = 'block'; // Esto hace que el botón aparezca
-                    console.log("Link encontrado:", linkFinal);
-                } else {
-                    // Si llega aquí, es porque la columna tiene otro nombre o está vacía
-                    document.getElementById('error-msg').innerText = "Link PDF no encontrado en la tabla";
-                }
+                // Mostrar botón PDF si existe el link en la columna Url_pdf
+                if (data.Url_pdf) {
+                    const boton = document.getElementById('btnPdf');
+                    boton.href = data.Url_pdf;
+                    boton.style.display = 'block';
                 }
             }
         } catch (err) {
-            document.getElementById('error-msg').innerText = "Error: " + err.message;
+            document.getElementById('error-msg').innerText = "Error de sistema: " + err.message;
         }
     }
 
