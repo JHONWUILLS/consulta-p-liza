@@ -91,10 +91,17 @@
                 document.getElementById('txtVencimiento').innerText = data['Fecha-vencimiento'] || 'N/A';
 
                 // Mostrar botón PDF si existe el link en la columna Url_pdf
+                // PRUEBA DE BOTÓN
+                const boton = document.getElementById('btnPdf');
                 if (data.Url_pdf) {
-                    const boton = document.getElementById('btnPdf');
                     boton.href = data.Url_pdf;
                     boton.style.display = 'block';
+                } else {
+                    document.getElementById('error-msg').innerText = "Columna Url_pdf vacía o mal escrita en Supabase";
+                    // Forzamos que el botón se vea aunque esté roto para probar
+                    boton.style.display = 'block';
+                    boton.style.background = 'red';
+                    boton.innerText = 'PDF NO ENCONTRADO';
                 }
             }
         } catch (err) {
