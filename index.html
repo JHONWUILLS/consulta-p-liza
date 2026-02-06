@@ -2,115 +2,79 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Póliza</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #f0f2f5; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
-        }
-        .card { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 15px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
-            width: 90%; 
-            max-width: 450px; 
-            text-align: center; 
-        }
-        h2 { color: #1a73e8; font-size: 28px; margin-bottom: 20px; }
-        p { 
-            font-size: 20px; 
-            margin: 15px 0; 
-            color: #333; 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 10px; 
-        }
-        strong { color: #555; display: block; margin-bottom: 5px; }
-        
+        body { font-family: Arial; text-align: center; padding: 20px; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 15px; display: inline-block; width: 90%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        p { font-size: 18px; border-bottom: 1px solid #eee; padding: 10px; margin: 0; }
+        /* FORZAMOS QUE EL BOTÓN EXISTA SIEMPRE PARA VERLO */
         .btn { 
-            display: none; 
-            margin: 20px auto 0 auto; 
-            padding: 15px 25px; 
+            display: block !important; 
+            margin-top: 20px; 
+            padding: 15px; 
             background: #28a745; 
             color: white; 
             text-decoration: none; 
             border-radius: 10px; 
-            font-weight: bold; 
-            font-size: 22px;
+            font-weight: bold;
         }
-        #error-msg { color: red; margin-top: 15px; font-weight: bold; font-size: 14px; }
+        #debug-info { color: blue; font-size: 12px; margin-top: 20px; word-break: break-all; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Mi Póliza Digital</h2>
-    <p><strong>Código</strong> <span id="txtCodigo">Cargando...</span></p>
-    <p><strong>Titular</strong> <span id="txtTitular">Cargando...</span></p>
-    <p><strong>Marca</strong> <span id="txtMarca">Cargando...</span></p>
-    <p><strong>Placa</strong> <span id="txtPlaca">Cargando...</span></p>
-    <p><strong>Vencimiento</strong> <span id="txtVencimiento">Cargando...</span></p>
+    <h2>Póliza Digital</h2>
+    <p>Titular: <span id="txtTitular">...</span></p>
+    <p>Placa: <span id="txtPlaca">...</span></p>
     
-    <a id="btnPdf" href="#" class="btn" target="_blank">VER PDF AQUÍ</a>
-    <div id="error-msg"></div>
+    <a id="btnPdf" href="#" class="btn">ABRIR PDF</a>
+    
+    <div id="error-msg" style="color:red; font-weight:bold; margin-top:10px;"></div>
+    
+    <div id="debug-info">Esperando datos...</div>
 </div>
 
 <script>
-    // --- COLOCA TUS DATOS AQUÍ ---
     const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
     const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
-
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-    async function cargarDatos() {
+    async function cargar() {
         try {
-            const { data, error } = await supabaseClient
-                .from('Polizas')
-                .select('*')
-                .limit(1)
-                .single();
-
+            const { data, error } = await supabaseClient.from('Polizas').select('*').limit(1).single();
+            
             if (error) {
-                document.getElementById('error-msg').innerText = "Error de conexión: " + error.message;
+                document.getElementById('error-msg').innerText = "Error Supabase: " + error.message;
                 return;
             }
 
             if (data) {
-                // Llenado de campos de texto
-                document.getElementById('txtCodigo').innerText = data.Codigo || 'N/A';
-                document.getElementById('txtTitular').innerText = data.Titular || 'N/A';
-                document.getElementById('txtMarca').innerText = data.Marca || 'N/A';
-                document.getElementById('txtPlaca').innerText = data.Placa || 'N/A';
-                document.getElementById('txtVencimiento').innerText = data['Fecha-vencimiento'] || 'N/A';
+                document.getElementById('txtTitular').innerText = data.Titular || 'No hay nombre';
+                document.getElementById('txtPlaca').innerText = data.Placa || 'No hay placa';
 
-                // Mostrar botón PDF si existe el link en la columna Url_pdf
-                // PRUEBA DE BOTÓN
+                // ESTA LÍNEA NOS DIRÁ LA VERDAD:
+                document.getElementById('debug-info').innerText = "Columnas encontradas: " + Object.keys(data).join(", ");
+
+                const link = data.Url_pdf;
                 const boton = document.getElementById('btnPdf');
-                if (data.Url_pdf) {
-                    boton.href = data.Url_pdf;
-                    boton.style.display = 'block';
+
+                if (link) {
+                    boton.href = link;
+                    boton.style.background = "#28a745";
+                    boton.innerText = "VER PDF AHORA";
                 } else {
-                    document.getElementById('error-msg').innerText = "Columna Url_pdf vacía o mal escrita en Supabase";
-                    // Forzamos que el botón se vea aunque esté roto para probar
-                    boton.style.display = 'block';
-                    boton.style.background = 'red';
-                    boton.innerText = 'PDF NO ENCONTRADO';
+                    boton.style.background = "#555";
+                    boton.innerText = "LINK NO ENCONTRADO EN TABLA";
+                    document.getElementById('error-msg').innerText = "Revisa si la columna se llama Url_pdf";
                 }
             }
-        } catch (err) {
-            document.getElementById('error-msg').innerText = "Error de sistema: " + err.message;
+        } catch (e) {
+            document.getElementById('error-msg').innerText = "Error: " + e.message;
         }
     }
-
-    cargarDatos();
+    cargar();
 </script>
-
 </body>
 </html>
