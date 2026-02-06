@@ -6,27 +6,32 @@
     <title>Consulta de Póliza</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: inline-block; width: 90%; max-width: 400px; }
-        .btn { display: none; margin-top: 15px; padding: 10px 20px; background: #27ae60; color: white; text-decoration: none; border-radius: 5px; }
-        #error-msg { color: red; margin-top: 20px; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eef2f3; text-align: center; padding: 40px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: inline-block; width: 100%; max-width: 400px; }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+        p { margin: 15px 0; font-size: 16px; color: #34495e; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px; text-align: left; }
+        strong { color: #2c3e50; }
+        .btn { display: none; margin-top: 25px; padding: 15px; background: #27ae60; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn:hover { background: #219150; }
+        #error-msg { color: #e74c3c; margin-top: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Información de Póliza</h2>
+    <h2>Mi Póliza Digital</h2>
     <p><strong>Código:</strong> <span id="txtCodigo">Cargando...</span></p>
     <p><strong>Titular:</strong> <span id="txtTitular">Cargando...</span></p>
     <p><strong>Marca:</strong> <span id="txtMarca">Cargando...</span></p>
     <p><strong>Placa:</strong> <span id="txtPlaca">Cargando...</span></p>
-    <hr>
-    <a id="btnPdf" href="#" class="btn" target="_blank">VER PDF CERTIFICADO</a>
+    <p><strong>Vencimiento:</strong> <span id="txtVencimiento">Cargando...</span></p>
+    
+    <a id="btnPdf" href="#" class="btn" target="_blank">📄 DESCARGAR PDF</a>
     <div id="error-msg"></div>
 </div>
 
 <script>
-    // 1. REEMPLAZA ESTAS LLAVES CON LAS TUYAS
+    // --- CONFIGURACIÓN DE SUPABASE ---
     const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
     const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
 
@@ -41,34 +46,36 @@
                 .single();
 
             if (error) {
-                document.getElementById('error-msg').innerText = "Error: " + error.message;
+                document.getElementById('error-msg').innerText = "Aviso: " + error.message;
+                console.error(error);
                 return;
             }
 
             if (data) {
-                // AQUÍ USAMOS LAS MAYÚSCULAS QUE ME DIJISTE
-                document.getElementById('txtCodigo').innerText = data.Codigo || 'N/A';
-                document.getElementById('txtTitular').innerText = data.Titular || 'N/A';
-                document.getElementById('txtMarca').innerText = data.Marca || 'N/A';
-                document.getElementById('txtPlaca').innerText = data.Placa || 'N/A';
+                // LLENADO DE DATOS CON MAYÚSCULAS
+                document.getElementById('txtCodigo').innerText = data.Codigo || 'No disponible';
+                document.getElementById('txtTitular').innerText = data.Titular || 'No disponible';
+                document.getElementById('txtMarca').innerText = data.Marca || 'No disponible';
+                document.getElementById('txtPlaca').innerText = data.Placa || 'No disponible';
+                
+                // CAMPO ESPECIAL CON GUION
+                document.getElementById('txtVencimiento').innerText = data['Fecha-vencimiento'] || 'No disponible';
 
+                // BOTÓN DEL PDF (Url_pdf)
                 if (data.Url_pdf) {
                     const btn = document.getElementById('btnPdf');
                     btn.href = data.Url_pdf;
-                    btn.style.display = 'inline-block';
+                    btn.style.display = 'block';
                 }
             }
         } catch (err) {
-            document.getElementById('error-msg').innerText = "Error de sistema: " + err.message;
+            document.getElementById('error-msg').innerText = "Error crítico: " + err.message;
         }
     }
 
+    // Iniciar la carga
     cargarDatos();
 </script>
 
 </body>
 </html>
-    
-    
-           
-      
