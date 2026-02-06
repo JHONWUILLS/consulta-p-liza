@@ -6,32 +6,67 @@
     <title>Consulta de Póliza</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eef2f3; text-align: center; padding: 40px; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: inline-block; width: 100%; max-width: 400px; }
-        h2 { color: #2c3e50; margin-bottom: 20px; }
-        p { margin: 15px 0; font-size: 16px; color: #34495e; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px; text-align: left; }
-        strong { color: #2c3e50; }
-        .btn { display: none; margin-top: 25px; padding: 15px; background: #27ae60; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn:hover { background: #219150; }
-        #error-msg { color: #e74c3c; margin-top: 20px; font-size: 14px; }
+        /* Centramos todo el contenido y agrandamos la letra */
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+            width: 90%; 
+            max-width: 450px; 
+            text-align: center; /* Centra el texto dentro de la tarjeta */
+        }
+        h2 { color: #1a73e8; font-size: 28px; }
+        p { 
+            font-size: 20px; /* Letra más grande */
+            margin: 15px 0; 
+            color: #333; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 10px; 
+        }
+        strong { color: #555; }
+        
+        /* Botón PDF Grande y Centrado */
+        .btn { 
+            display: none; 
+            margin: 20px auto 0 auto; 
+            padding: 15px 25px; 
+            background: #28a745; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            font-size: 22px; 
+            width: fit-content;
+        }
+        #error-msg { color: red; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>Mi Póliza Digital</h2>
-    <p><strong>Código:</strong> <span id="txtCodigo">Cargando...</span></p>
-    <p><strong>Titular:</strong> <span id="txtTitular">Cargando...</span></p>
-    <p><strong>Marca:</strong> <span id="txtMarca">Cargando...</span></p>
-    <p><strong>Placa:</strong> <span id="txtPlaca">Cargando...</span></p>
-    <p><strong>Vencimiento:</strong> <span id="txtVencimiento">Cargando...</span></p>
+    <p><strong>Código:</strong> <br> <span id="txtCodigo">...</span></p>
+    <p><strong>Titular:</strong> <br> <span id="txtTitular">...</span></p>
+    <p><strong>Marca:</strong> <br> <span id="txtMarca">...</span></p>
+    <p><strong>Placa:</strong> <br> <span id="txtPlaca">...</span></p>
+    <p><strong>Vencimiento:</strong> <br> <span id="txtVencimiento">...</span></p>
     
-    <a id="btnPdf" href="#" class="btn" target="_blank">📄 DESCARGAR PDF</a>
+    <a id="btnPdf" href="#" class="btn" target="_blank">VER PDF AQUÍ</a>
     <div id="error-msg"></div>
 </div>
 
 <script>
-    // --- CONFIGURACIÓN DE SUPABASE ---
+    // --- COLOCA TUS DATOS AQUÍ ---
     const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
     const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
 
@@ -46,34 +81,30 @@
                 .single();
 
             if (error) {
-                document.getElementById('error-msg').innerText = "Aviso: " + error.message;
-                console.error(error);
+                document.getElementById('error-msg').innerText = "Error: " + error.message;
                 return;
             }
 
             if (data) {
-                // LLENADO DE DATOS CON MAYÚSCULAS
-                document.getElementById('txtCodigo').innerText = data.Codigo || 'No disponible';
-                document.getElementById('txtTitular').innerText = data.Titular || 'No disponible';
-                document.getElementById('txtMarca').innerText = data.Marca || 'No disponible';
-                document.getElementById('txtPlaca').innerText = data.Placa || 'No disponible';
-                
-                // CAMPO ESPECIAL CON GUION
-                document.getElementById('txtVencimiento').innerText = data['Fecha-vencimiento'] || 'No disponible';
+                // Llenamos los campos con las Mayúsculas que me indicaste
+                document.getElementById('txtCodigo').innerText = data.Codigo || 'N/A';
+                document.getElementById('txtTitular').innerText = data.Titular || 'N/A';
+                document.getElementById('txtMarca').innerText = data.Marca || 'N/A';
+                document.getElementById('txtPlaca').innerText = data.Placa || 'N/A';
+                document.getElementById('txtVencimiento').innerText = data['Fecha-vencimiento'] || 'N/A';
 
-                // BOTÓN DEL PDF (Url_pdf)
+                // Aquí activamos el botón del PDF
                 if (data.Url_pdf) {
                     const btn = document.getElementById('btnPdf');
                     btn.href = data.Url_pdf;
-                    btn.style.display = 'block';
+                    btn.style.display = 'block'; 
                 }
             }
         } catch (err) {
-            document.getElementById('error-msg').innerText = "Error crítico: " + err.message;
+            document.getElementById('error-msg').innerText = "Error: " + err.message;
         }
     }
 
-    // Iniciar la carga
     cargarDatos();
 </script>
 
