@@ -6,57 +6,64 @@
     <title>Consulta de Póliza</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; width: 90%; max-width: 400px; }
-        .btn { display: none; background-color: #28a745; color: white; padding: 15px; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
-        .dato { font-weight: bold; color: #333; margin: 10px 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; max-width: 350px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
+        .info { text-align: left; margin-bottom: 20px; line-height: 1.6; }
+        .label { font-weight: bold; color: #555; }
+        .btn { display: block; background-color: #28a745; color: white; padding: 12px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn:hover { background-color: #218838; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>Mi Póliza</h2>
-        <div class="dato">Titular: <span id="txtTitular">Cargando...</span></div>
-        <div class="dato">Placa: <span id="txtPlaca">...</span></div>
-        <div class="dato">Marca: <span id="txtMarca">...</span></div>
-        <div class="dato">Vence: <span id="txtVence">...</span></div>
-        
-        <a id="btnPdf" href="#" class="btn">VER PÓLIZA DIGITAL</a>
-        <p id="msg" style="color:red;"></p>
+        <h2>Detalle de Póliza</h2>
+        <div class="info">
+            <p><span class="label">Titular:</span> <span id="txtTitular">Cargando...</span></p>
+            <p><span class="label">Placa:</span> <span id="txtPlaca">---</span></p>
+            <p><span class="label">Marca:</span> <span id="txtMarca">---</span></p>
+            <p><span class="label">Vencimiento:</span> <span id="txtVence">---</span></p>
+        </div>
+        <a id="btnPdf" href="#" class="btn" style="display: none;">DESCARGAR PÓLIZA</a>
     </div>
 
     <script>
-        // 1. TUS DATOS DE CONEXIÓN
-        const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
-        const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        // === CONFIGURACIÓN (Solo cambia lo que está entre comillas) ===
+        const URL_SB = 'https://isspijaaafpewnipdabw.supabase.co';
+        const KEY_SB = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
+        const LINK_RESPALDO = 'https://drive.google.com/file/d/12BDIeDOQFZxJfyKiiXM3iNfZkUXY6JGO/view?usp=sharing';
+        // =============================================================
 
-        async function cargarPoliza() {
+        const supabaseClient = supabase.createClient(URL_SB, KEY_SB);
+
+        async function obtenerDatos() {
             try {
-                const { data, error } = await supabaseClient.from('Polizas').select('*').limit(1).single();
+                const { data, error } = await supabaseClient
+                    .from('Polizas')
+                    .select('*')
+                    .limit(1)
+                    .single();
 
                 if (data) {
-                    // Llenar los datos en pantalla
                     document.getElementById('txtTitular').innerText = data.Titular || 'No registrado';
-                    document.getElementById('txtPlaca').innerText = data.Placa || 'No registrado';
-                    document.getElementById('txtMarca').innerText = data.Marca || 'No registrado';
-                    document.getElementById('txtVence').innerText = data['Fecha-vencimiento'] || data.Fecha_vencimiento || 'No registrada';
-
-                    // 2. EL LINK DE LA FOTO (DRIVE)
-                    // Buscamos en la tabla, y si no hay nada, usamos el link que pegues aquí:
-                    const linkDesdeTabla = data.Url_pdf || data.url_pdf || data.URL_PDF;
-                    const linkEmergencia = "https://drive.google.com/file/d/12BDIeDOQFZxJfyKiiXM3iNfZkUXY6JGO/view?usp=sharing"; 
+                    document.getElementById('txtPlaca').innerText = data.Placa || '---';
+                    document.getElementById('txtMarca').innerText = data.Marca || '---';
+                    document.getElementById('txtVence').innerText = data['Fecha-vencimiento'] || data.Fecha_vencimiento || '---';
 
                     const boton = document.getElementById('btnPdf');
-                    boton.href = (linkDesdeTabla && linkDesdeTabla.includes('http')) ? linkDesdeTabla : linkEmergencia;
+                    // Busca el link en la tabla, si no lo encuentra usa el de respaldo que pusiste arriba
+                    const linkFinal = data.Url_pdf || data.url_pdf || LINK_RESPALDO;
+                    
+                    boton.href = linkFinal;
                     boton.style.display = 'block';
                 }
-            } catch (e) {
-                document.getElementById('msg').innerText = "Error al conectar.";
+            } catch (err) {
+                console.error("Error:", err);
             }
         }
 
-        cargarPoliza();
+        obtenerDatos();
     </script>
 </body>
 </html>
