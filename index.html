@@ -78,7 +78,38 @@
         }
     }
 
-    cargarPoliza();
+    async function cargarPoliza() {
+        try {
+            const { data, error } = await supabaseClient.from('Polizas').select('*').limit(1).single();
+
+            if (data) {
+                document.getElementById('txtTitular').innerText = data.Titular || 'No registrado';
+                document.getElementById('txtPlaca').innerText = data.Placa || 'No registrado';
+                document.getElementById('txtMarca').innerText = data.Marca || 'No registrado';
+                document.getElementById('txtVence').innerText = data['Fecha-vencimiento'] || data.Fecha_vencimiento || 'No registrada';
+
+                // BUSCADOR AUTOMÁTICO DE LINKS (Busca en todas las columnas posibles)
+                const linkDesdeSupabase = data.Url_pdf || data.url_pdf || data.URL_PDF || data.Url || data.url || data.link;
+                
+                const boton = document.getElementById('btnPdf');
+                
+                if (linkDesdeSupabase && linkDesdeSupabase.includes('http')) {
+                    // Si encontró un link real en Supabase, lo usa
+                    boton.href = linkDesdeSupabase;
+                    boton.style.backgroundColor = '#28a745'; 
+                } else {
+                    // SI SIGUE FALLANDO, PON TU LINK DE DRIVE AQUÍ ABAJO:
+                    boton.href = "AQUÍ_PEGA_TU_LINK_DE_DRIVE_ENTRE_COMILLAS";
+                    boton.style.backgroundColor = '#28a745';
+                }
+                
+                boton.style.display = 'block';
+                document.getElementById('msg').innerText = "";
+            }
+        } catch (e) {
+            console.log("Error:", e);
+        }
+    }
 </script>
 
 </body>
