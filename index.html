@@ -94,10 +94,18 @@
                 document.getElementById('txtVencimiento').innerText = data['Fecha-vencimiento'] || 'N/A';
 
                 // Aquí activamos el botón del PDF
-                if (data.Url_pdf) {
+                // Buscamos el link probando varios nombres por si acaso
+                const linkFinal = data.Url_pdf || data.Url_PDF || data.URL_PDF || data.url_pdf;
+
+                if (linkFinal) {
                     const btn = document.getElementById('btnPdf');
-                    btn.href = data.Url_pdf;
-                    btn.style.display = 'block'; 
+                    btn.href = linkFinal;
+                    btn.style.display = 'block'; // Esto hace que el botón aparezca
+                    console.log("Link encontrado:", linkFinal);
+                } else {
+                    // Si llega aquí, es porque la columna tiene otro nombre o está vacía
+                    document.getElementById('error-msg').innerText = "Link PDF no encontrado en la tabla";
+                }
                 }
             }
         } catch (err) {
