@@ -4,38 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Póliza RCV</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; text-align: center; padding: 20px; }
-        .carnet { background: white; border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); 
-                  padding: 25px; max-width: 380px; margin: 20px auto; border-top: 12px solid #1a73e8; }
-        h1 { color: #1a73e8; font-size: 24px; margin-bottom: 5px; }
-        h2 { color: #555; font-size: 16px; margin-top: 0; }
-        .info { text-align: left; margin: 25px 0; line-height: 1.6; }
-        .label { font-weight: bold; color: #333; display: inline-block; width: 100px; }
-        .estado { font-size: 1.3em; font-weight: bold; padding: 10px; border-radius: 8px; display: block; margin-top: 15px; }
-        .vigente { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .footer { margin-top: 30px; font-size: 11px; color: #777; border-top: 1px solid #ddd; padding-top: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #e9ecef; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 450px; margin: auto; border-top: 8px solid #d32f2f; }
+        h2 { color: #333; margin-bottom: 10px; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+        .info-row { text-align: left; margin-bottom: 15px; font-size: 1.1em; }
+        .info-label { font-weight: bold; color: #666; display: block; font-size: 0.9em; }
+        .info-value { color: #222; font-weight: 600; }
+        .status { color: #28a745; font-weight: bold; font-size: 1.2em; margin-top: 20px; display: block; }
+        .btn { display: block; padding: 15px 20px; background: #d32f2f; color: white; text-decoration: none; border-radius: 10px; margin-top: 25px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="carnet">
-        <h1>Certificado Digital</h1>
-        <h2>Responsabilidad Civil Vehicular (RCV)</h2>
-        <hr>
-        <div class="info">
-            <p><span class="label">Asegurado:</span> Juan Pérez</p>
-            <p><span class="label">Vehículo:</span> Toyota Corolla</p>
-            <p><span class="label">Placa:</span> AB123CD</p>
-            <p><span class="label">Certificado:</span> #RCV-2026-0001</p>
-            <p><span class="label">Vencimiento:</span> 31/12/2026</p>
-        </div>
-        <div class="estado vigente">
-            ✅ PÓLIZA VIGENTE
-        </div>
-        <div class="footer">
-            Sistema de Verificación Digital - Polía RCV<br>
-            Válido a nivel nacional
-        </div>
+
+<div class="card">
+    <img src="https://cdn-icons-png.flaticon.com/512/1162/1162280.png" style="width: 70px;" alt="Logo">
+    <h2>Certificado Digital RCV</h2>
+    <p style="color: #888;">Verificación en Línea</p>
+    <hr>
+    
+    <div class="info-row">
+        <span class="info-label">TITULAR:</span>
+        <span id="nombre" class="info-value">Cargando...</span>
     </div>
+    <div class="info-row">
+        <span class="info-label">PLACA / VEHÍCULO:</span>
+        <span id="placa" class="info-value">Cargando...</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">VENCIMIENTO:</span>
+        <span id="vencimiento" class="info-value">Cargando...</span>
+    </div>
+
+    <span class="status">● PÓLIZA VIGENTE</span>
+    
+    <a id="link-pdf" href="#" class="btn" target="_blank">DESCARGAR CERTIFICADO PDF</a>
+</div>
+
+<script>
+    // === REEMPLAZA ESTO CON TUS DATOS ===
+    const SB_URL = 'TU_URL_DE_SUPABASE_AQUI'; 
+    const SB_KEY = 'TU_LLAVE_ANON_AQUI';
+    // =====================================
+
+    const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+    async function cargarDatos() {
+        const { data, error } = await _supabase
+            .from('polizas') 
+            .select('*')
+            .order('id', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (data) {
+            document.getElementById('nombre').innerText = data.nombre_cliente;
+            document.getElementById('placa').innerText = data.placa;
+            document.getElementById('vencimiento').innerText = data.vencimiento;
+            document.getElementById('link-pdf').href = data.url_pdf;
+        } else {
+            document.getElementById('nombre').innerText = "Sin datos";
+        }
+    }
+    cargarDatos();
+</script>
+
 </body>
 </html>
