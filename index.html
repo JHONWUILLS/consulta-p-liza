@@ -23,29 +23,33 @@
     
     <div class="dato">
         <span class="etiqueta">Titular:</span>
-        <span id="titular" class="valor">Cargando...</span>
+        <span id="Titular" class="valor">Cargando...</span>
     </div>
     
     <div class="dato">
-        <span class="etiqueta">Vehículo:</span>
-        <span id="marca" class="valor">Cargando...</span>
+        <span class="etiqueta">Marca:</span>
+        <span id="Marca" class="valor">Cargando...</span>
     </div>
 
     <div class="dato">
         <span class="etiqueta">Placa:</span>
-        <span id="placa" class="valor">Cargando...</span>
+        <span id="Placa" class="valor">Cargando...</span>
     </div>
 
     <div class="dato">
-        <span class="etiqueta">Vencimiento:</span>
-        <span id="vencimiento" class="valor">Cargando...</span>
+        <span class="etiqueta">Fecha-vencimiento:</span>
+        <span id="Fecha-vencimiento" class="valor">Cargando...</span>
     </div>
 
-    <div id="status" class="estado">● Póliza Activa</div>
+    <div id="status" class="Estado">● Póliza Activa</div>
 
     <a id="link-pdf" href="#" class="btn" target="_blank">DESCARGAR PDF</a>
 </div>
+<p><strong>Certificado:</strong> <a id="link-pdf" href="#" target="_blank">Descargar PDF</a></p>
 
+<p><strong>Token QR:</strong> <span id="token_qr">Cargando...</span></p>
+
+<p><strong>Código Póliza:</strong> <span id="Codigo">Cargando...</span></p>
 <script>
     // === CONFIGURACIÓN ===
     const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
@@ -57,23 +61,23 @@
     async function cargar() {
         try {
             const { data, error } = await supabaseClient
-                .from('polizas') 
+                .from('Polizas') 
                 .select('*')
                 .limit(1)
                 .single();
 
             if (error) {
                 console.error(error);
-                document.getElementById('titular').innerText = "Error al conectar";
+                document.getElementById('Titular').innerText = "Error al conectar";
                 return;
             }
 
             if (data) {
                 // Aquí usamos los nombres exactos que me diste:
-                document.getElementById('titular').innerText = data.titular;
-                document.getElementById('marca').innerText = data.marca;
-                document.getElementById('placa').innerText = data.placa;
-                document.getElementById('vencimiento').innerText = data['fecha-vencimiento'];
+                document.getElementById('titular').innerText = data.Titular;
+                document.getElementById('marca').innerText = data.Marca;
+                document.getElementById('placa').innerText = data.Placa;
+                document.getElementById('vencimiento').innerText = data['Fecha-vencimiento'];
                 document.getElementById('link-pdf').href = data.url_pdf;
                 
                 if(data.estado) {
