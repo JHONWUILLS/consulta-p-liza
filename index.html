@@ -51,44 +51,55 @@
 
 <p><strong>Código Póliza:</strong> <span id="Codigo">Cargando...</span></p>
 <script>
-    // === CONFIGURACIÓN ===
-    const SB_URL = 'https://isspijaaafpewnipdabw.supabase.co'; 
-    const SB_KEY = 'sb_publishable_DbYF4urAB8tKJNLzSZnXcw_ZERFTZ-U';
-    
-
+  <script>
+    const SB_URL = 'TU_URL_AQUÍ';
+    const SB_KEY = 'TU_LLAVE_ANON_AQUÍ';
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-    async function cargar() {
+    async function cargarPoliza() {
+        console.log("Iniciando carga...");
         try {
+            // Intentamos traer la información
             const { data, error } = await supabaseClient
-                .from('Polizas') 
+                .from('Polizas') // Revisa que la P sea mayúscula
                 .select('*')
                 .limit(1)
                 .single();
 
             if (error) {
-                console.error(error);
-                document.getElementById('Titular').innerText = "Error al conectar";
+                console.error("Error de Supabase:", error);
+                document.body.innerHTML += `<div style="color:red; background:white; padding:20px;"> 
+                    <b>ERROR DE CONEXIÓN:</b> ${error.message} <br>
+                    <b>DETALLE:</b> ${error.hint || 'Revisa el nombre de la tabla'} 
+                </div>`;
                 return;
             }
 
             if (data) {
-                // Aquí usamos los nombres exactos que me diste:
-                document.getElementById('titular').innerText = data.Titular;
-                document.getElementById('marca').innerText = data.Marca;
-                document.getElementById('placa').innerText = data.Placa;
-                document.getElementById('vencimiento').innerText = data['Fecha-vencimiento'];
-                document.getElementById('link-pdf').href = data.url_pdf;
+                console.log("Datos recibidos:", data);
+                // Llenamos los campos (Asegúrate que coincidan con tus columnas)
+                document.getElementById('titular').innerText = data.titular || 'No hay dato';
+                document.getElementById('marca').innerText = data.Marca || 'No hay dato'; 
+                document.getElementById('placa').innerText = data.placa || 'No hay dato';
+                document.getElementById('vencimiento').innerText = data['fecha-vencimiento'] || 'No hay dato';
                 
-                if(data.estado) {
-                    document.getElementById('status').innerText = "● " + data.estado;
+                if (data.Url_pdf) {
+                    const btn = document.getElementById('link-pdf');
+                    btn.href = data.Url_pdf;
+                    btn.style.display = 'inline-block';
+                    btn.innerText = "Ver Certificado";
                 }
+            } else {
+                alert("No se encontró ninguna fila en la tabla Polizas.");
             }
-        } catch (e) {
-            console.error(e);
+
+        } catch (err) {
+            alert("Error crítico del código: " + err.message);
         }
     }
-    cargar();
+
+    cargarPoliza();
+</script>  
 </script>
 </body>
 </html>
